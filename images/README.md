@@ -1,0 +1,1 @@
+Images are taken from [Boardgame pack](https://opengameart.org/content/boardgame-pack) by Kenney which is in the public domain.
