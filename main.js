@@ -1,6 +1,6 @@
-function Card(color, value) {
+function Card(suit, rank) {
     this.elem = document.createElement('div');
-    this.elem.className = `card card-${color}-${value}`;
+    this.elem.className = `card card-${suit}-${rank}`;
     this.frontVisible = false;
 }
 
@@ -17,6 +17,9 @@ Card.prototype.turnOver = function() {
         this.elem.addEventListener('transitionend', onTransitionEnd, false);
     });
 }
+
+const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
 let card = new Card('clubs', 'A');
 document.body.appendChild(card.elem);
