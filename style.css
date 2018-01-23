@@ -10,10 +10,6 @@
     transform: rotateY(90deg)
 }
 
-.card-full-rotate {
-    transform: rotateY(0deg);
-}
-
-.card-visible.card-clubs-A {
+.card-front-visible.card-clubs-A {
     background-image: url('images/cardClubsA.png');
 }
