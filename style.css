@@ -10,6 +10,18 @@
     transform: rotateY(90deg)
 }
 
+.deck {
+    width: 140px;
+    height: 190px;
+    position: relative;
+}
+
+.deck .card {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
 .card-front-visible.card-hearts-2 {
     background-image: url('images/cardHearts2.png');
 }
