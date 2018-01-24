@@ -24,6 +24,17 @@ Card.prototype.turnOver = function() {
     });
 }
 
+// https://stackoverflow.com/a/6274381/5114473
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+}
+
 const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
 const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
@@ -37,19 +48,25 @@ for (let suit of suits) {
     for (let rank of ranks) {
         let card = new Card(suit, rank);
         deck.push(card);
-        deckEl.insertBefore(card.elem, deckEl.firstChild);
-        prevCardEl = card.elem;
     }
+}
+
+shuffle(deck);
+
+for (let card of deck) {
+    deckEl.appendChild(card.elem);
 }
 
 function f(i) {
     let promise = deck[i].turnOver();
-    if (i + 1 < deck.length) {
+    if (i - 1 >= 0) {
         promise.then(_ => {
-            deckEl.removeChild(deck[i].elem);
-            f(i+1);
+            setTimeout(_ => {
+                deckEl.removeChild(deck[i].elem);
+                f(i-1);
+            }, 500);
         });
     }
 }
 
-setTimeout(f, 0, 0);
+setTimeout(f, 0, deck.length-1);
