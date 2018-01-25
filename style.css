@@ -3,7 +3,8 @@ html, body {
     height: 100%;
 }
 
-body {
+.card-anim-root {
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -15,6 +16,7 @@ body {
     transform: rotateY(0deg);
     transition: transform .3s linear;
     background-image: url('images/cardBack_blue5.png');
+    background-size: contain;
 }
 
 .card-half-rotate {
@@ -25,8 +27,6 @@ body {
     position: absolute;
     z-index: 10;
     transition: all .2s ease-in;
-    margin-left: -70px;
-    margin-top: -95px;
 }
 
 .deck, .hand {

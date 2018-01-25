@@ -35,48 +35,13 @@ function shuffle(a) {
     }
 }
 
-const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
-const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-
-let deck = [],
-    deckEl = document.createElement('div');
-
-deckEl.className = 'deck';
-
-for (let suit of suits) {
-    for (let rank of ranks) {
-        let card = new Card(suit, rank);
-        deck.push(card);
-    }
-}
-
-shuffle(deck);
-
-for (let card of deck) {
-    deckEl.appendChild(card.elem);
-}
-
-let numPlayers = 2,
-    hands = [[], []],
-    handEls = [];
-
-for (let i = 0; i < numPlayers; ++i) {
-    let el = document.createElement('div');
-    el.className = 'hand';
-    handEls.push(el);
-}
-
-document.body.appendChild(handEls[0]);
-document.body.appendChild(deckEl);
-document.body.appendChild(handEls[1]);
-
 function rectToAbsPercentPos(rect) {
-    let top = (rect.top + rect.height / 2) / window.innerHeight * 100,
-        left = (rect.left + rect.width / 2) / window.innerWidth * 100;
+    let top = rect.y / window.innerHeight * 100,
+        left = rect.x  / window.innerWidth * 100;
     return [top, left];
 }
 
-function dealCard(playerInd) {
+function dealCard(deck, hands, handEls, playerInd) {
     let card = deck.pop();
     hands[playerInd].push(card);
     let rect = card.elem.getBoundingClientRect();
@@ -102,11 +67,55 @@ function dealCard(playerInd) {
     });
 }
 
-function f(player) {
-    if (deck.length == 0) {
-        return;
-    }
-    dealCard(player).then(_ => f((player + 1) % 2));
+function dealCards(deck, hands, handEls) {
+    (function f(deck, hands, handEls, player) {
+        if (deck.length == 0) {
+            return;
+        }
+        dealCard(deck, hands, handEls, player).then(
+            _ => f(deck, hands, handEls, (player + 1) % 2));
+    })(deck, hands, handEls, 0);
 }
 
-setTimeout(f, 0, 0);
+const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+function gameAnimation(parent) {
+    let animRootEl = document.createElement('div');
+    animRootEl.className = 'card-anim-root';
+
+    let deck = [],
+        deckEl = document.createElement('div');
+    deckEl.className = 'deck';
+
+    for (let suit of suits) {
+        for (let rank of ranks) {
+            let card = new Card(suit, rank);
+            deck.push(card);
+        }
+    }
+
+    shuffle(deck);
+
+    for (let card of deck) {
+        deckEl.appendChild(card.elem);
+    }
+
+    let numPlayers = 2,
+        hands = [[], []],
+        handEls = [];
+
+    for (let i = 0; i < numPlayers; ++i) {
+        let el = document.createElement('div');
+        el.className = 'hand';
+        handEls.push(el);
+    }
+
+    animRootEl.appendChild(handEls[0]);
+    animRootEl.appendChild(deckEl);
+    animRootEl.appendChild(handEls[1]);
+
+    parent.appendChild(animRootEl);
+
+    dealCards(deck, hands, handEls);
+}
