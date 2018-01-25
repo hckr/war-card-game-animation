@@ -80,6 +80,7 @@ function dealCards(deck, hands, handEls) {
     });
 }
 
+// extract code shared with dealCard?
 function playCard(hands, handEls, tables, tableEls, playerInd) {
     let card = hands[playerInd].pop();
     tables[playerInd].push(card);
@@ -110,6 +111,21 @@ function playCard(hands, handEls, tables, tableEls, playerInd) {
 
 const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
 const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+function gameLoop(hands, handEls, tables, tableEls) {
+    (function f() {
+        setTimeout(_ => {
+            let p1 = playCard(hands, handEls, tables, tableEls, 0),
+                p2 = playCard(hands, handEls, tables, tableEls, 1);
+            Promise.all([p1, p2]).then(cards => {
+                let ps = cards.map(c => c.turnOver());
+                Promise.all(ps).then(_ => {
+                    f();
+                });
+            });
+        }, 500);
+    })();
+}
 
 function gameAnimation(parent) {
     let animRootEl = document.createElement('div'),
@@ -176,11 +192,6 @@ function gameAnimation(parent) {
             tableWrapperEl.appendChild(leftTableWrapperEl);
             tableWrapperEl.appendChild(rightTableWrapperEl);
 
-            setTimeout(_ => {
-                playCard(hands, handEls, tables, tableEls, 0).then(
-                    card => card.turnOver());
-                playCard(hands, handEls, tables, tableEls, 1).then(
-                    card => card.turnOver());
-            }, 500);
+            gameLoop(hands, handEls, tables, tableEls);
         });
 }

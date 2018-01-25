@@ -36,6 +36,7 @@ html, body {
     transition: transform .3s linear;
     background-image: url('images/cardBack_blue5.png');
     background-size: contain;
+    backface-visibility: hidden;
 }
 
 .card-half-rotate {
@@ -55,7 +56,7 @@ html, body {
     margin: 0 auto;
 }
 
-.deck .card, .hand .card {
+.deck .card, .hand .card, .player-table .card {
     position: absolute;
     top: 0;
     left: 0;
