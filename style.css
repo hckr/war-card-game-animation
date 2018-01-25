@@ -5,9 +5,28 @@ html, body {
 
 .card-anim-root {
     height: 100%;
+    overflow: hidden;
+}
+
+.hand-wrapper,
+.table-wrapper,
+.player-table-wrapper {
+    float: left;
+    height: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+}
+
+.hand-wrapper {
+    width: 25%;
+}
+
+.table-wrapper {
+    width: 50%;
+}
+
+.player-table-wrapper {
+    width: 50%;
 }
 
 .card {
@@ -29,10 +48,11 @@ html, body {
     transition: all .2s ease-in;
 }
 
-.deck, .hand {
+.deck, .hand, .player-table {
     width: 140px;
     height: 190px;
     position: relative;
+    margin: 0 auto;
 }
 
 .deck .card, .hand .card {
