@@ -1,3 +1,14 @@
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
 .card {
     width: 140px;
     height: 190px;
@@ -10,13 +21,21 @@
     transform: rotateY(90deg)
 }
 
-.deck {
+.card-detached {
+    position: absolute;
+    z-index: 10;
+    transition: all .2s ease-in;
+    margin-left: -70px;
+    margin-top: -95px;
+}
+
+.deck, .hand {
     width: 140px;
     height: 190px;
     position: relative;
 }
 
-.deck .card {
+.deck .card, .hand .card {
     position: absolute;
     top: 0;
     left: 0;
