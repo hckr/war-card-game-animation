@@ -7,20 +7,20 @@ function Card(suit, rank) {
 
 Card.prototype.turnOver = function() {
     this.frontVisible = !this.frontVisible;
-    this.elem.classList.add('card-half-rotate');
     return new Promise((resolve, reject) => {
         let onTransitionEnd1, onTransitionEnd2;
         onTransitionEnd1 = e => {
-            this.elem.classList.remove('card-half-rotate');
-            this.elem.classList.toggle('card-front-visible');
             this.elem.removeEventListener('transitionend', onTransitionEnd1, false);
             this.elem.addEventListener('transitionend', onTransitionEnd2, false);
+            this.elem.classList.toggle('card-front-visible');
+            this.elem.classList.remove('card-half-rotate');
         };
         this.elem.addEventListener('transitionend', onTransitionEnd1, false);
         onTransitionEnd2 = e => {
             this.elem.removeEventListener('transitionend', onTransitionEnd2, false);
             resolve();
         };
+        setTimeout(_ => this.elem.classList.add('card-half-rotate'));
     });
 }
 
@@ -93,14 +93,18 @@ function playCard(hands, handEls, tables, tableEls, playerInd) {
     return new Promise((resolve, reject) => {
         let rect = tableEls[playerInd].getBoundingClientRect();
         let [newTop, newLeft] = rectToAbsPercentPos(rect);
+        let counter = 0;
         function onTransitionEnd() {
-            tableEls[playerInd].appendChild(card.elem);
-            card.elem.removeEventListener('transitionend', onTransitionEnd, false);
-            card.elem.classList.remove('card-detached');
-            card.elem.style.top = null;
-            card.elem.style.left = null;
-            card.elem.style.transform = null;
-            resolve(card);
+            counter += 1;
+            if (counter == 3) {
+                card.elem.removeEventListener('transitionend', onTransitionEnd, false);
+                tableEls[playerInd].appendChild(card.elem);
+                card.elem.classList.remove('card-detached');
+                card.elem.style.top = null;
+                card.elem.style.left = null;
+                card.elem.style.transform = null;
+                resolve(card);
+            }
         }
         card.elem.addEventListener('transitionend', onTransitionEnd, false);
         card.elem.style.top = newTop + '%';

@@ -40,7 +40,7 @@ html, body {
 }
 
 .card-half-rotate {
-    transform: rotateY(90deg)
+    transform: rotateY(90deg);
 }
 
 .card-detached {
