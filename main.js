@@ -3,6 +3,7 @@ function Card(suit, rank) {
     this.elem.className = `card card-${suit}-${rank}`;
     this.elem.style.transform = `rotate(${Math.random() * 8 - 4}deg)`;
     this.frontVisible = false;
+    this.rank = rank;
 }
 
 Card.prototype.turnOver = function() {
@@ -54,12 +55,12 @@ function dealCard(deck, hands, handEls, playerInd) {
         let rect = handEls[playerInd].getBoundingClientRect();
         let [newTop, newLeft] = rectToAbsPercentPos(rect);
         function onTransitionEnd() {
-            handEls[playerInd].appendChild(card.elem);
             card.elem.removeEventListener('transitionend', onTransitionEnd, false);
+            handEls[playerInd].appendChild(card.elem);
             card.elem.classList.remove('card-detached');
             card.elem.style.top = null;
             card.elem.style.left = null;
-            resolve();
+            setTimeout(resolve, 50);
         }
         card.elem.addEventListener('transitionend', onTransitionEnd, false);
         card.elem.style.top = newTop + '%';
@@ -93,28 +94,64 @@ function playCard(hands, handEls, tables, tableEls, playerInd) {
     return new Promise((resolve, reject) => {
         let rect = tableEls[playerInd].getBoundingClientRect();
         let [newTop, newLeft] = rectToAbsPercentPos(rect);
-        let counter = 0;
         function onTransitionEnd() {
-            counter += 1;
-            if (counter == 3) {
-                card.elem.removeEventListener('transitionend', onTransitionEnd, false);
-                tableEls[playerInd].appendChild(card.elem);
-                card.elem.classList.remove('card-detached');
-                card.elem.style.top = null;
-                card.elem.style.left = null;
-                card.elem.style.transform = null;
-                resolve(card);
-            }
+            card.elem.removeEventListener('transitionend', onTransitionEnd, false);
+            tableEls[playerInd].appendChild(card.elem);
+            card.elem.classList.remove('card-detached');
+            card.elem.style.top = null;
+            card.elem.style.left = null;
+            card.elem.style.transform = null;
+            setTimeout(_ => resolve(card), 50);
         }
         card.elem.addEventListener('transitionend', onTransitionEnd, false);
         card.elem.style.top = newTop + '%';
         card.elem.style.left = newLeft + '%';
+        card.oldTransform = card.elem.style.transform;
         card.elem.style.transform = 'rotate(0)';
     });
 }
 
+function awardCardsFromTables(hands, handEls, tables, tableEls, playerInd) {
+    let handRect = handEls[playerInd].getBoundingClientRect();
+    let [newTop, newLeft] = rectToAbsPercentPos(handRect);
+
+    let promises = [];
+    for (let table of tables) {
+        while (table.length > 0) {
+            let card = table.pop();
+            hands[playerInd].unshift(card);
+
+            let rect = card.elem.getBoundingClientRect();
+            document.body.appendChild(card.elem);
+            let [currTop, currLeft] = rectToAbsPercentPos(rect);
+            card.elem.style.top = currTop + '%';
+            card.elem.style.left = currLeft + '%';
+            card.elem.style.transform = 'rotate(0)';
+            card.elem.classList.add('card-detached');
+
+            promises.push(new Promise((resolve, reject) => {
+                function onTransitionEnd(e) {
+                    card.elem.removeEventListener('transitionend', onTransitionEnd, false);
+                    handEls[playerInd].insertBefore(card.elem, handEls[playerInd].firstChild);
+                    card.elem.classList.remove('card-detached');
+                    card.elem.style.top = null;
+                    card.elem.style.left = null;
+                    setTimeout(resolve, 50);
+                }
+                card.elem.addEventListener('transitionend', onTransitionEnd, false);
+                setTimeout(_ => {
+                    card.elem.style.top = newTop + '%';
+                    card.elem.style.left = newLeft + '%';
+                    card.elem.style.transform = card.oldTransform;
+                }, 20);
+            }));
+        }
+    }
+    return Promise.all(promises);
+}
+
 const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
-const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+const ranks = ['2', '3', '4'];//, '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
 function gameLoop(hands, handEls, tables, tableEls) {
     (function f() {
@@ -124,7 +161,20 @@ function gameLoop(hands, handEls, tables, tableEls) {
             Promise.all([p1, p2]).then(cards => {
                 let ps = cards.map(c => c.turnOver());
                 Promise.all(ps).then(_ => {
-                    f();
+                    setTimeout(_ => {
+                        let ps = cards.map(c => c.turnOver());
+                        Promise.all(ps).then(_ => {
+                            let [c1, c2] = cards;
+                            if (c1.rank == c2.rank) {
+                                console.error('War – not yet implemented.');
+                                return;
+                            } else if (c1.rank < c2.rank) {
+                                awardCardsFromTables(hands, handEls, tables, tableEls, 1).then(f);
+                            } else {
+                                awardCardsFromTables(hands, handEls, tables, tableEls, 0).then(f);
+                            }
+                        });
+                    }, 500);
                 });
             });
         }, 500);
